@@ -1,4 +1,4 @@
-%% example from lecture 13
+ %% example from lecture 13
 close all 
 clear 
 a = 1;
@@ -9,7 +9,7 @@ f = [-a*(x(1) - x(1)^3/3 - x(2)); -x(1)/a];
 pt = [1;1];
 %% linearization
 A = double(subs(diff(f,x),x,x*0));
-Q = diag([5 1]);
+Q = diag([1 1]);
 S = lyap(A',Q);
 
 %% Lyapunov function
@@ -17,7 +17,7 @@ V = .5*x'*S*x;
 Vdot = diff(V,x)*f;
 %% SOS constraints
 [prog, rho] = prog.newFree(1);
-[prog, sigma_2] = prog.newSOSPoly(monomials(x,4));
+[prog, sigma_2] = prog.newSOSPoly(monomials(x,8));
 Vdot_sos = (x'*x)^3*(V - rho) - (1+sigma_2)*Vdot;
 prog = prog.withSOS(Vdot_sos);
 spot_options = spotprog.defaultOptions;
@@ -41,4 +41,5 @@ hold on
 plot(yout(50:end,1),yout(50:end,2),'k','LineWidth',3);
 VPLOT = reshape(dmsubs(V,x,[X1(:) X2(:)]'),size(X1));
 [~,h] = contour(X1,X2,VPLOT,double(sol.eval(rho))*[1 1]);
+
 set(h,'Color','Red','LineWidth',3)

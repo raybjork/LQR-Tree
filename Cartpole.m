@@ -30,6 +30,25 @@ classdef Cartpole
             [t, x] = ode45(@(t,x) f(t, x, K), [0 tf], x_0, opts);
         end
         
+        function dx = f( x, K)
+            x(2) = mod(x(2),2*pi);
+            c = constants();
+            g = c.g;
+            mc = c.mc;
+            mp = c.mp;
+            L = c.L;
+            M = [mc + mp, mp*L*cos(x(2));
+                 mp*L*cos(x(2)), mp*L^2];
+            C = [-mp*L*sin(x(2))*x(4)^2;
+                 mp*g*L*sin(x(2))];
+            B = [1;
+                 0];
+
+            u = - K*(x-[0;pi;0;0]);
+            dx = [x(3:4);
+                  M \ (B*u - C)];
+        end
+
         function plot(t, x)
             y_d = 0*t;
             z_d = 0*t;
@@ -103,24 +122,6 @@ classdef Cartpole
     end
 end
 
-function dx = f(t, x, K)
-    x(2) = mod(x(2),2*pi);
-    c = constants();
-    g = c.g;
-    mc = c.mc;
-    mp = c.mp;
-    L = c.L;
-    M = [mc + mp, mp*L*cos(x(2));
-         mp*L*cos(x(2)), mp*L^2];
-    C = [-mp*L*sin(x(2))*x(4)^2;
-         mp*g*L*sin(x(2))];
-    B = [1;
-         0];
-
-    u = - K*(x-[0;pi;0;0]);
-    dx = [x(3:4);
-          M \ (B*u - C)];
-end
 
 function c = constants()
     c.g = 9.81;
