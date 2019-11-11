@@ -1,4 +1,4 @@
-function u = collocate_trajectory(dynamics, x_0, x_f, u_max, N, dt)
+function [x,u] = collocate_trajectory(dynamics, x_0, x_f, u_max, N, dt)
 %% COLLOCATE_TRAJECTORY(dynamics, x_0, x_f, u_max, N, dt)
 %   executes a direct collocation optimization program to find an input
 %   sequence to drive the cartpole system from x_0 to x_f.
@@ -54,8 +54,9 @@ function u = collocate_trajectory(dynamics, x_0, x_f, u_max, N, dt)
 
     z = fmincon(problem);
     
-    [~, u] = sample_indices([1: N], nx, nu);
+    [x, u] = sample_indices([1: N], nx, nu);
     u = z(u);
+    x = z(x);
 end
 
 function [c, ceq, dC, dCeq] = all_constraints(dynamics, z, N, nx, nu, dt)

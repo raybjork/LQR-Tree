@@ -8,7 +8,7 @@ prog = spotsosprog();
 [prog,x] = prog.newIndeterminate('x',2);
 
 
-q0 = [0;0];
+q0 = [pi;0];
 Q = diag([1 1]);
 R = 1;
 system = Pendulum(q0,Q,R);

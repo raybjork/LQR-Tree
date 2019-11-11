@@ -10,8 +10,8 @@ N = 30;
 dt = 6/N;
 u_max = 20;
 
-u = collocate_trajectory(system.dynamics(), q0, qstar, u_max, N, dt);
-[t, x] = simulate_inputs(system, uu, dt, q0);
+[~,u] = collocate_trajectory(system.dynamics(), q0, qstar, u_max, N, dt);
+[t, x] = simulate_inputs(system, u, dt, q0);
 system.plot(t, x);
 
 

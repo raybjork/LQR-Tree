@@ -2,6 +2,7 @@
 %   class to abstract away dynamics of system in an encapsulated object
 classdef Pendulum
     properties
+        position
         A
         B
         Q
@@ -16,6 +17,7 @@ classdef Pendulum
         %   initialize class with a point to linearize about and cost
         %   matrices
         function self = Pendulum(q,Q,R)
+            self.position = q;
             self.constants = constants();
             [A,B] = linearize(q);
             self.A = A;
@@ -152,5 +154,5 @@ function c = constants()
     c.g = 9.81;
     c.m = 1;
     c.L = 1;
-    c.b = 1;
+    c.b = 0;
 end
