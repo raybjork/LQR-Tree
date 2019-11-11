@@ -1,0 +1,6 @@
+%% simulate
+%   simulate dynamics of system, given controller initial state
+function [t, x] = simulate_inputs(system, u, dt, x_0)
+    opts = odeset('MaxStep', 0.1, 'RelTol', 1e-4, 'AbsTol', 1e-4);
+    [t, x] = ode45(@(t,x) simulation_dynamics(t, x, u, dt, system.K, system.S), [0 dt * length(u)], x_0, opts); 
+end

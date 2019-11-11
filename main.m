@@ -1,12 +1,17 @@
-system = Cartpole();
+close all; clear all; clc;
 
-Q = diag([1 1 1 10]);
+q0 = [0; 0];
+qstar = [pi;0];
+Q = diag([1 1]);
 R = 1;
+system = Pendulum(qstar,Q,R);
 
-[K, S] = lqr(system, Q, R);
+N = 30;
+dt = 6/N;
+u_max = 20;
 
-tf = 10;
-x_0 = [0; pi+1; 0; 0];
+u = collocate_trajectory(system.dynamics(), q0, qstar, u_max, N, dt);
+[t, x] = simulate_inputs(system, uu, dt, q0);
+system.plot(t, x);
 
-[t, x] = system.simulate(K, tf, x_0);
-system.plot(t, x)
+
