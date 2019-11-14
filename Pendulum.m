@@ -37,6 +37,22 @@ classdef Pendulum
             handle = @f;
         end
         
+        %% poly_f
+        %   function to evaluate polynomial approximation of system dynamics
+        %   at a given state and input
+        function dx = poly_f(x, u)
+            %x(1) = mod(x(1),2*pi); want to keep theta between 0 and 2pi
+
+            % unpack constants
+            c = constants();
+            g = c.g;
+            m = c.m;
+            b = c.b;
+            L = c.L;
+
+            dx = [x(2); (-b*x(2) - m*g*L*(x(1)+x(1)^3/6 + x(1)^5/120) + u)/(m*L^2)];
+        end
+        
         %% plot
         %   plot trajectory of the system
         function plot(t, x)
@@ -130,21 +146,7 @@ function dx = f(x, u)
     dx = [x(2); (-b*x(2) - m*g*L*sin(x(1)) + u)/(m*L^2)];
 end
 
-%% poly_f
-%   function to evaluate polynomial approximation of system dynamics
-%   at a given state and input
-function dx = poly_f(x, u)
-    %x(1) = mod(x(1),2*pi); want to keep theta between 0 and 2pi
 
-    % unpack constants
-    c = constants();
-    g = c.g;
-    m = c.m;
-    b = c.b;
-    L = c.L;
-    
-    dx = [x(2); (-b*x(2) - m*g*L*(x(1)+ x(1)^3/6 +x(1)^5/120) + u)/(m*L^2)];
-end
 
 
 
@@ -154,5 +156,5 @@ function c = constants()
     c.g = 9.81;
     c.m = 1;
     c.L = 1;
-    c.b = 0;
+    c.b = 1;
 end
