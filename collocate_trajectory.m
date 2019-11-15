@@ -54,9 +54,9 @@ function [x,u] = collocate_trajectory(dynamics, x_0, x_f, u_max, N, dt)
 
     z = fmincon(problem);
     
-    [x, u] = sample_indices([1: N], nx, nu);
+    [~, u] = sample_indices([1: N], nx, nu);
+    x = reshape(z(setdiff([1:N*(nx+nu)], u)), [N nx]);
     u = z(u);
-    x = z(x);
 end
 
 function [c, ceq, dC, dCeq] = all_constraints(dynamics, z, N, nx, nu, dt)
