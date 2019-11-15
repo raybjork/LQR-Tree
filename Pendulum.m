@@ -146,10 +146,6 @@ function dx = f(x, u)
     dx = [x(2); (-b*x(2) - m*g*L*sin(x(1)) + u)/(m*L^2)];
 end
 
-
-
-
-
 %% constants
 %   function to pack constants into struct
 function c = constants()
