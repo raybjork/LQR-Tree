@@ -34,7 +34,7 @@ Vdot_sos = (xhat'*xhat)^3*(V - rho) - (1+sig)*Vdot;% - pi*(1-s^2-c^2);
 prog = prog.withSOS(Vdot_sos);
 
 % trying to do input saturation
-prog = prog.withSOS(-(K*xhat) + 1*alph);
+%prog = prog.withSOS(-(K*xhat) + 1*alph);
 
 spot_options = spotprog.defaultOptions;
 spot_options.verbose = true;

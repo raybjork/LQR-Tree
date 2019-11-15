@@ -134,7 +134,7 @@ end
 %% f
 %   function to evaluate system dynamics at given state and input
 function dx = f(x, u)
-    %x(1) = mod(x(1),2*pi); want to keep theta between 0 and 2pi
+    x(1) = mod(x(1),2*pi);% want to keep theta between 0 and 2pi
     
     % unpack constants
     c = constants();
