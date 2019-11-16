@@ -2,7 +2,7 @@
 %   class to abstract away dynamics of system in an encapsulated object
 classdef Pendulum
     properties
-        position
+        qstar
         A
         B
         Q
@@ -16,21 +16,28 @@ classdef Pendulum
         %% Constructor
         %   initialize class with a point to linearize about and cost
         %   matrices
-        function self = Pendulum(q,Q,R)
-            self.position = q;
+        %   can call with three arguments (q, Q, R) or 1 (q)
+        function self = Pendulum(varargin)
+            self.qstar = varargin{1};
             self.constants = constants();
-            [A,B] = linearize(q);
+            [A,B] = linearize(self.qstar);
             self.A = A;
             self.B = B;
-            [K,S] = lqr(A,B,Q,R);
-            self.K = K;
-            self.S = S;
-            self.Q = Q;
-            self.R = R;  
+            if (nargin == 3)
+                self.Q = varargin{2};
+                self.R = varargin{3};  
+                [K,S] = lqr(A, B, self.Q, self.R);
+                self.K = K;
+                self.S = S;
+            end
         end
     end
        
     methods (Static) % Static Methods can be called by [system].[method]
+        function system = new(q)
+            system = Pendulum(q);
+        end
+        
         %% dynamics
         %   return a handle to the function encapsulating the dynamics
         function handle = dynamics()
@@ -125,16 +132,18 @@ end
 function [A, B] = linearize(q)
     syms u
     syms x [2 1]
-    A = jacobian(f(x,u),x);
+    %A = jacobian(f(x,u),x); % run this only to get expression for A
+    A = [0,  1; -(981*cos(x1))/100, -1];
     A = double(subs(A, x, q));
-    B = diff(f(x,u),u);
+    %B = diff(f(x,u),u); % run this only to get expression for B
+    B = [0; 1];
     B = double(subs(B, x, q));
 end
 
 %% f
 %   function to evaluate system dynamics at given state and input
 function dx = f(x, u)
-    x(1) = mod(x(1),2*pi);% want to keep theta between 0 and 2pi
+    %x(1) = mod(x(1),2*pi);% want to keep theta between 0 and 2pi
     
     % unpack constants
     c = constants();
