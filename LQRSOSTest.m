@@ -13,13 +13,15 @@ prog = spotsosprog();
 q0 = [pi;0];
 Q = diag([1 1]);
 R = 1;
+umax = 3;
 system = Pendulum(q0,Q,R);
 xhat = x-q0;
 
 %Khat = [system.K,0,0];
 %f = system.poly_f(xhat,-Khat*xhat);
 K = system.K;
-S = system.S;f = system.poly_f(xhat,-K*xhat);
+S = system.S;
+f = system.poly_f(xhat,-K*xhat);
 %zero = [0,0;0,0];
 %Shat = [system.S,zero;zero,zero];
 %V = .5*xhat'*Shat*xhat;
@@ -30,11 +32,16 @@ Vdot = diff(V,x)*f;
 [prog, rho] = prog.newFree(1);
 [prog, sig] = prog.newSOSPoly(monomials(x,0:2));
 [prog, alph] = prog.newSOSPoly(monomials(x,0:2));
+[prog, beta] = prog.newSOSPoly(monomials(x,0:2));
+%[prog, L] = prog.newSOSPoly(monomials(x,0:2));
+%maybe remove ^3 term
 Vdot_sos = (xhat'*xhat)^3*(V - rho) - (1+sig)*Vdot;% - pi*(1-s^2-c^2);
 prog = prog.withSOS(Vdot_sos);
 
 % trying to do input saturation
-%prog = prog.withSOS(-(K*xhat) + 1*alph);
+prog = prog.withSOS((V - rho) - (1+beta)*(-K*xhat-umax));
+prog = prog.withSOS((V - rho) - (1+alph)*(K*xhat-umax));
+
 
 spot_options = spotprog.defaultOptions;
 spot_options.verbose = true;
@@ -42,18 +49,27 @@ solver = @spot_mosek;
 sol = prog.minimize(-rho,solver,spot_options);
 
 
-
+bounds = 2*pi;
 N = 300;
-[X1,X2] = meshgrid(linspace(-20,20,N), linspace(-20,20,N));
+[X1,X2] = meshgrid(linspace(-bounds,bounds,N), linspace(-bounds,bounds,N));
 X1DOT = X2;
-X2DOT = -system.constants.b*X2-9.81*sin(X1)-(system.K(1).*X1+system.K(2).*X2); 
+X2DOT = -system.constants.b*X2-9.81*sin(X1)-(system.K(1).*(X1-q0(1))+system.K(2).*X2-q0(2)); 
 figure('Position',[0 0 1024 1024])
 quiver(X1(:),X2(:),X1DOT(:),X2DOT(:),3.5)
-xlim([-20 20])
-ylim([-20 20])
+xlim([-bounds bounds])
+ylim([-bounds bounds])
 
 hold on
 VPLOT = reshape(dmsubs(V,x,[X1(:) X2(:)]'),size(X1));
 [~,h] = contour(X1,X2,VPLOT,double(sol.eval(rho))*[1 1]);
 
 set(h,'Color','Red','LineWidth',3)
+step = 3;
+for i = 0:1:6
+    for j = -5:1:5
+        
+        [~,x] = SimulateLQRSinglePoint(system,[i;j],q0,umax,20);
+        
+        plot(x(:,1),x(:,2),'Color', 'k');
+    end
+end
