@@ -21,10 +21,10 @@ function dx = simulation_dynamics(system, t, x, u, dt)
         if i >= numel(u)
             i = numel(u) - 1;
         end
-        lambda = .............................................................................mod(t,dt)/dt;
+        lambda = mod(t,dt)/dt;
         
         % time is between u(i) and u(i+1); select input as r_i(t)
-        u_x = u(i)*(1-lambda) + u(i+1)*.lambda;
+        u_x = u(i)*(1-lambda) + u(i+1)*lambda;
     end
     f = system.dynamics();
     dx = f(x, u_x);
