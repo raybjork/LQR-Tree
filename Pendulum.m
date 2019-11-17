@@ -5,10 +5,6 @@ classdef Pendulum
         qstar
         A
         B
-        Q
-        R
-        K
-        S
         constants
     end
 
@@ -18,23 +14,18 @@ classdef Pendulum
         %   matrices
         %   can call with three arguments (q, Q, R) or 1 (q)
         function self = Pendulum(varargin)
-            self.qstar = varargin{1};
-            self.constants = constants();
-            [A,B] = linearize(self.qstar);
-            self.A = A;
-            self.B = B;
-            if (nargin == 3)
-                self.Q = varargin{2};
-                self.R = varargin{3};  
-                [K,S] = lqr(A, B, self.Q, self.R);
-                self.K = K;
-                self.S = S;
+            if nargin ~= 0
+                self.qstar = varargin{1};
+                self.constants = constants();
+                [A,B] = linearize(self.qstar);
+                self.A = A;
+                self.B = B;
             end
         end
     end
        
     methods (Static) % Static Methods can be called by [system].[method]
-        function system = new(q)
+        function system = new(q, u)
             system = Pendulum(q);
         end
         

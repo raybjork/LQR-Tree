@@ -5,10 +5,6 @@ classdef Cartpole
         qstar
         A
         B
-        Q
-        R
-        K
-        S
         constants
     end
 
@@ -18,24 +14,19 @@ classdef Cartpole
         %   matrices
         %   can call with three arguments (q, Q, R) or 1 (q)
         function self = Cartpole(varargin)
-            self.qstar = varargin{1};
-            self.constants = constants();
-            [A,B] = linearize(self.qstar);
-            self.A = A;
-            self.B = B;
-            if (nargin == 3)
-                self.Q = varargin{2};
-                self.R = varargin{3};  
-                [K,S] = lqr(A, B, self.Q, self.R);
-                self.K = K;
-                self.S = S;
+            if nargin ~= 0
+                self.qstar = varargin{1};
+                self.constants = constants();
+                [A,B] = linearize(self.qstar, varargin{2});
+                self.A = A;
+                self.B = B;
             end
         end
     end
        
     methods (Static) % Static Methods can be called by [system].[method]
-        function system = new(q)
-            system = Cartpole(q);
+        function system = new(q, u)
+            system = Cartpole(q, u);
         end
         
         %% dynamics
@@ -145,15 +136,19 @@ end
 
 %% linearize
 %   linearize system around a given state
-function [A, B] = linearize(q , tau)
+function [A, B] = linearize(q, tau)
     syms u
     syms x [4 1]
-    A = jacobian(f(x,u),x); % run this only to get expression for A
+    %A = jacobian(f(x,u),x); % run this only to get expression for A
+    A = [ 0, 0, 1, 0; ...
+     0, 0, 0, 1; ...
+     0, - (100*x4^2*cos(x2) + 981*cos(x2)^2 - 981*sin(x2)^2)/(100*(cos(x2)^2 - 2)) - (cos(x2)*sin(x2)*(100*sin(x2)*x4^2 + 100*u + 981*cos(x2)*sin(x2)))/(50*(cos(x2)^2 - 2)^2), 0,        -(2*x4*sin(x2))/(cos(x2)^2 - 2); ...
+     0, (981*cos(x2) + 50*x4^2*cos(x2)^2 - 50*x4^2*sin(x2)^2 - 50*u*sin(x2))/(50*(cos(x2)^2 - 2)) + (cos(x2)*sin(x2)*(50*cos(x2)*sin(x2)*x4^2 + 981*sin(x2) + 50*u*cos(x2)))/(25*(cos(x2)^2 - 2)^2), 0, (2*x4*cos(x2)*sin(x2))/(cos(x2)^2 - 2)];
 
-    A = double(subs(A, {x u}, {q tau}));
-    B = diff(f(x,u),u); % run this only to get expression for B
-    
-    B = double(subs(A, {x u}, {q tau}));
+    A = double(subs(A, [x; u], [q; tau]));
+    %B = diff(f(x,u),u); % run this only to get expression for B
+    B = [0; 0; -1/(cos(x2)^2 - 2); cos(x2)/(cos(x2)^2 - 2)];
+    B = double(subs(B, [x; u], [q; tau]));
 end
 
 %% f

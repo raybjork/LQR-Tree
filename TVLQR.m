@@ -16,7 +16,7 @@ function [S, AB, u] = TVLQR(Q, R, Qf, tf, x_d, u_d, u_max, system)
     L = spline(t, flipud(L)');
     
     S = @(t) s(ppval(L,t));
-    AB = @(t) ab(ststem, x_d(t));
+    AB = @(t) ab(ststem, x_d(t), u_d(t));
     u = @(t,x) feedback(system, t, x, ppval(L, t), R, x_d, u_d,u_max);
 end
 
@@ -24,7 +24,7 @@ function Ldotminus = dLdtminus(t, L, Q, R, x_d, u_d, system)
     % reshape L to a square
     L = reshape(L,[sqrt(length(L)) sqrt(length(L))]);
 
-    sys_i = system.new(x_d(t));
+    sys_i = system.new(x_d(t), u_d(t));
 
     A = sys_i.A;
     B = sys_i.B;
@@ -40,14 +40,14 @@ function S = s(L)
     S = (Lsquare*Lsquare');
 end
 
-function [A, B] = ab(system, q)
-    sys_i = system.new(q);
+function [A, B] = ab(system, q, u)
+    sys_i = system.new(q, u);
     A = sys_i.A;
     B = sys_i.B;
 end
 
 function u = feedback(system, t, x, L, R, x_d, u_d,u_max)
-    [~, B] = ab(system, x_d(t));
+    [~, B] = ab(system, x_d(t), u_d(t));
     S = s(L);
     u =-inv(R)*B'*S *(x - x_d(t)) + u_d(t);
     u(u>u_max) = u_max;
