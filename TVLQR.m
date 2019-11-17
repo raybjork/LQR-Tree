@@ -1,8 +1,8 @@
-function [K, S, u] = TVLQR(Q, R, Qf, tf, x_d, u_d, u_max, system)
+function [S, AB, u] = TVLQR(Q, R, Qf, tf, x_d, u_d, u_max, system)
     L0square = chol(Qf)';
 
     % ode45() must take L as a vector, so we reshape it
-    L0 = reshape(L0square, [2*length(L0square) 1]);
+    L0 = reshape(L0square, [length(L0square)^2 1]);
     opts = odeset('MaxStep', 1);
     
     % L must be integrated backwards; we integrate L(tf - t) from 0 to tf
@@ -16,13 +16,13 @@ function [K, S, u] = TVLQR(Q, R, Qf, tf, x_d, u_d, u_max, system)
     L = spline(t, flipud(L)');
     
     S = @(t) s(ppval(L,t));
-    K = @(t) gain(system, t, ppval(L, t), R, x_d);
+    AB = @(t) ab(ststem, x_d(t));
     u = @(t,x) feedback(system, t, x, ppval(L, t), R, x_d, u_d,u_max);
 end
 
 function Ldotminus = dLdtminus(t, L, Q, R, x_d, u_d, system)
     % reshape L to a square
-    L = reshape(L,[length(L)/2 length(L)/2]);
+    L = reshape(L,[sqrt(length(L)) sqrt(length(L))]);
 
     sys_i = system.new(x_d(t));
 
@@ -32,24 +32,24 @@ function Ldotminus = dLdtminus(t, L, Q, R, x_d, u_d, system)
     dLdt = -.5*(Q*inv(L'))-(A'*L)+.5*(L*L'*B*inv(R)*B'*L);
     
     % set derivative to -\dot L reshaped as a vector
-    Ldotminus = -reshape(dLdt,[2*length(dLdt) 1]);
-end
-
-function u = feedback(system, t, x, L, R, x_d, u_d,u_max)
-    K = gain(system, t, L, R, x_d);
-    u =-K *(x - x_d(t)) + u_d(t);
-    u(u>u_max) = u_max;
-    u(u<-u_max)= -u_max;
-end
-
-function K = gain(system, t, L, R, x_d)
-    sys_i = system.new(x_d(t));
-    B = sys_i.B;
-    S = s(L);
-    K = inv(R)*B'*S;
+    Ldotminus = -reshape(dLdt,[length(dLdt)^2 1]);
 end
 
 function S = s(L)
-    Lsquare = reshape(L, [length(L)/2 length(L)/2]);
+    Lsquare = reshape(L, [sqrt(length(L)) sqrt(length(L))]);
     S = (Lsquare*Lsquare');
+end
+
+function [A, B] = ab(system, q)
+    sys_i = system.new(q);
+    A = sys_i.A;
+    B = sys_i.B;
+end
+
+function u = feedback(system, t, x, L, R, x_d, u_d,u_max)
+    [~, B] = ab(system, x_d(t));
+    S = s(L);
+    u =-inv(R)*B'*S *(x - x_d(t)) + u_d(t);
+    u(u>u_max) = u_max;
+    u(u<-u_max)= -u_max;
 end

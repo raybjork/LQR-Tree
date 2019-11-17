@@ -1,10 +1,10 @@
 clc; close all;
 
 %% setup
-q0 = z;
-qstar = [pi;0];
-Q = diag([1 1]);
-Qf = diag([1 1]);
+q0 = [0; 0; 0; 0];
+qstar = [0; pi; 0; 0];
+Q = diag(ones(4, 1));
+Qf = Q;
 R = 1;
 system = Cartpole(qstar,Q,R);
 

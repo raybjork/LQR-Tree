@@ -1,19 +1,19 @@
 clc; close all;
 
 %% setup
-q0 = z;
+q0 = [0; 0];
 qstar = [pi;0];
 Q = diag([1 1]);
 Qf = diag([1 1]);
 R = 1;
-system = Cartpole(qstar,Q,R);
+system = Pendulum(qstar,Q,R);
 
 N = 10;
 u_max = 20;
 
 %% generate trajectory and controller
 [x_d, u_d, dt] = collocate_trajectory(system.dynamics(), q0, qstar, u_max, N);
-[K, S, u] = TVLQR(Q, R, Qf, N * dt, x_d, u_d, u_max, system);
+[S, AB, u] = TVLQR(Q, R, Qf, N * dt, x_d, u_d, u_max, system);
 
 %% simulate and plot
 q_err = [2; 0];
