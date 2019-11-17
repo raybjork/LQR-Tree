@@ -1,4 +1,4 @@
-function u = TVLQR(Q, R, Qf, tf, x_d, u_d, u_max, system)
+function [K, u] = TVLQR(Q, R, Qf, tf, x_d, u_d, u_max, system)
     L0square = chol(Qf)';
 
     % ode45() must take L as a vector, so we reshape it
@@ -15,6 +15,7 @@ function u = TVLQR(Q, R, Qf, tf, x_d, u_d, u_max, system)
     t = flipud(t);
     L = spline(t, flipud(L)');
 
+    K = @(t) gain(system, t, ppval(L, t), R, x_d);
     u = @(t,x) feedback(system, t, x, ppval(L, t), R, x_d, u_d,u_max);
 end
 
@@ -37,11 +38,15 @@ function Ldotminus = dLdtminus(t, L, Q, R, x_d, u_d, system)
 end
 
 function u = feedback(system, t, x, L, R, x_d, u_d,u_max)
+    K = gain(system, t, L, R, x_d);
+    u =-K*(x-ppval(x_d,t)) + ppval(u_d,t);
+    u(u>u_max) = u_max;
+    u(u<-u_max)= -u_max;
+end
+
+function K = gain(system, t, L, R, x_d)
     sys_i = system.new(ppval(x_d, t));
     B = sys_i.B;
     Lsquare = reshape(L, [length(L)/2 length(L)/2]);
-    u =-inv(R)*B'*(Lsquare*Lsquare')*(x-ppval(x_d,t)) + ppval(u_d,t);
-    u(u>u_max) = u_max;
-    u(u<-u_max)= -u_max;
-    %u = ppval(u_d, t);
+    K = inv(R)*B'*(Lsquare*Lsquare');
 end
