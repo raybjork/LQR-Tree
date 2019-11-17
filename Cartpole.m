@@ -1,13 +1,4 @@
-classdef Cartpole
-    properties
-        A
-        B
-        Q
-        R
-        constants
-    end
-    
-    methods (Access = public)
+        methods (Access = public)
         function self = Cartpole(A, B)
             self.constants = constants();
 
@@ -24,11 +15,6 @@ classdef Cartpole
         end
     end
        
-    methods (Static)
-        function [t, x] = simulate(K, tf, x_0)
-            opts = odeset('MaxStep', 0.1,'RelTol',1e-4,'AbsTol',1e-4);
-            [t, x] = ode45(@(t,x) f(t, x, K), [0 tf], x_0, opts);
-        end
         
         function dx = f( x, K)
             x(2) = mod(x(2),2*pi);
@@ -48,8 +34,77 @@ classdef Cartpole
             dx = [x(3:4);
                   M \ (B*u - C)];
         end
+    end
 
+%% Cartpole
+%   class to abstract away dynamics of system in an encapsulated object
+classdef Cartpole
+    properties
+        qstar
+        A
+        B
+        Q
+        R
+        K
+        S
+        constants
+    end
+
+    methods (Access = public)
+        %% Constructor
+        %   initialize class with a point to linearize about and cost
+        %   matrices
+        %   can call with three arguments (q, Q, R) or 1 (q)
+        function self = Cartpole(varargin)
+            self.qstar = varargin{1};
+            self.constants = constants();
+            [A,B] = linearize(self.qstar);
+            self.A = A;
+            self.B = B;
+            if (nargin == 3)
+                self.Q = varargin{2};
+                self.R = varargin{3};  
+                [K,S] = lqr(A, B, self.Q, self.R);
+                self.K = K;
+                self.S = S;
+            end
+        end
+    end
+       
+    methods (Static) % Static Methods can be called by [system].[method]
+        function system = new(q)
+            system = Cartpole(q);
+        end
+        
+        %% dynamics
+        %   return a handle to the function encapsulating the dynamics
+        function handle = dynamics()
+            handle = @f;
+        end
+        
+        %% poly_f
+        %   function to evaluate polynomial approximation of system dynamics
+        %   at a given state and input
+        function dx = poly_f(x, u)
+            %x(1) = mod(x(1),2*pi); want to keep theta between 0 and 2pi
+
+            % unpack constants
+            c = constants();
+            g = c.g;
+            m = c.m;
+            b = c.b;
+            L = c.L;
+
+            dx = [x(2); (-b*x(2) - m*g*L*(x(1)+x(1)^3/6 + x(1)^5/120) + u)/(m*L^2)];
+        end
+        
+        %% plot
+        %   plot trajectory of the system
         function plot(t, x)
+            % set text display to Latex
+            set(groot,'defaulttextinterpreter','latex');
+            set(groot, 'DefaultLegendInterpreter', 'latex')
+            
             y_d = 0*t;
             z_d = 0*t;
 
@@ -122,7 +177,40 @@ classdef Cartpole
     end
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Private Methods
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% linearize
+%   linearize system around a given state
+function [A, B] = linearize(q)
+    syms u
+    syms x [2 1]
+    %A = jacobian(f(x,u),x); % run this only to get expression for A
+    A = [0,  1; -(981*cos(x1))/100, -1];
+    A = double(subs(A, x, q));
+    %B = diff(f(x,u),u); % run this only to get expression for B
+    B = [0; 1];
+    B = double(subs(B, x, q));
+end
+
+%% f
+%   function to evaluate system dynamics at given state and input
+function dx = f(x, u)
+    %x(1) = mod(x(1),2*pi);% want to keep theta between 0 and 2pi
+    
+    % unpack constants
+    c = constants();
+    g = c.g;
+    m = c.m;
+    b = c.b;
+    L = c.L;
+    
+    dx = [x(2); (-b*x(2) - m*g*L*sin(x(1)) + u)/(m*L^2)];
+end
+
+%% constants
+%   function to pack constants into struct
 function c = constants()
     c.g = 9.81;
     c.mp = 1;

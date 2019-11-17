@@ -4,9 +4,11 @@ function [t,x] = SimulateLQRSinglePoint(system,x0,xstar,umax,tf)
 end
 
 function xdot = dynamics(system,x,xstar,umax)
+   
+    
+    disp(x)
     f = system.dynamics;
     u = -system.K*(x-xstar);
-    
     u(u>umax) = umax;
     u(u<-umax) = -umax;
     xdot = f(x,u);
