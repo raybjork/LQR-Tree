@@ -145,15 +145,15 @@ end
 
 %% linearize
 %   linearize system around a given state
-function [A, B] = linearize(q)
+function [A, B] = linearize(q , tau)
     syms u
     syms x [4 1]
     A = jacobian(f(x,u),x); % run this only to get expression for A
 
-    A = vap(subs(A, x, q));
+    A = double(subs(A, {x u}, {q tau}));
     B = diff(f(x,u),u); % run this only to get expression for B
     
-    B = double(subs(B, x, q));
+    B = double(subs(A, {x u}, {q tau}));
 end
 
 %% f
