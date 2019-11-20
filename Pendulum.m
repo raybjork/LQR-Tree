@@ -5,6 +5,10 @@ classdef Pendulum
         qstar
         A
         B
+        Q
+        R
+        S
+        u_max
         constants
     end
 
@@ -14,12 +18,18 @@ classdef Pendulum
         %   matrices
         %   can call with three arguments (q, Q, R) or 1 (q)
         function self = Pendulum(varargin)
-            if nargin ~= 0
+            if nargin > 0
                 self.qstar = varargin{1};
                 self.constants = constants();
                 [A,B] = linearize(self.qstar);
                 self.A = A;
                 self.B = B;
+                if nargin > 1
+                    self.Q = varargin{2};
+                    self.R = varargin{3};
+                    self.u_max = varargin{4};
+                    [~, self.S, ~] = lqr(self.A, self.B, self.Q, self.R);
+                end
             end
         end
     end
@@ -121,14 +131,17 @@ end
 %% linearize
 %   linearize system around a given state
 function [A, B] = linearize(q)
-    syms u
-    syms x [2 1]
-    %A = jacobian(f(x,u),x); % run this only to get expression for A
-    A = [0,  1; -(981*cos(x1))/100, -1];
-    A = double(subs(A, x, q));
-    %B = diff(f(x,u),u); % run this only to get expression for B
+    %% run this section only to get expression for A
+    %syms u
+    %syms x [2 1]
+    %A = jacobian(f(x,u),x); 
+    %A = double(subs(A, x, q));
+    %B = diff(f(x,u),u);
+    %B = double(subs(B, x, q));
+    
+    %% explicitly derived derivatives
+    A = [0,  1; -(981*cos(q(1)))/100, -1];
     B = [0; 1];
-    B = double(subs(B, x, q));
 end
 
 %% f

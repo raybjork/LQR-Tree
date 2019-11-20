@@ -5,6 +5,10 @@ classdef Cartpole
         qstar
         A
         B
+        Q
+        R
+        S
+        u_max
         constants
     end
 
@@ -14,12 +18,18 @@ classdef Cartpole
         %   matrices
         %   can call with three arguments (q, Q, R) or 1 (q)
         function self = Cartpole(varargin)
-            if nargin ~= 0
+            if nargin > 0
                 self.qstar = varargin{1};
                 self.constants = constants();
                 [A,B] = linearize(self.qstar, varargin{2});
                 self.A = A;
                 self.B = B;
+                if nargin > 1
+                    self.Q = varargin{2};
+                    self.R = varargin{3};
+                    self.S = lqr(self.A, self.B, self.Q, self.R);
+                    self.u_max = varargin{4};
+                end
             end
         end
     end

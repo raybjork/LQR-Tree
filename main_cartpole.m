@@ -13,7 +13,7 @@ u_max = 20;
 
 %% generate trajectory and controller
 [x_d, u_d, dt] = collocate_trajectory(system.dynamics(), q0, qstar, u_max, N);
-[t, x] = simulate_inputs(system, u, dt, q0);
+[t, x] = simulate_inputs(system, u_d, dt, q0);
 sytstem.plot(t, x);
 [K, S, u] = TVLQR(Q, R, Qf, N * dt, x_d, u_d, u_max, system);
 
