@@ -1,5 +1,5 @@
-function [S, AB, u] = TVLQR(x_d, u_d, tf, system)
-    L0square = chol(system.S)';
+function [S, AB, u] = TVLQR(x_d, u_d, tf,S1, system)
+    L0square = chol(S1)';
 
     % ode45() must take L as a vector, so we reshape it
     L0 = reshape(L0square, [length(L0square)^2 1]);

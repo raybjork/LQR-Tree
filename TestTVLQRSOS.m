@@ -16,4 +16,4 @@ u_max = 20;
 [S ,AB, u] = TVLQR(Q, R, Qf, N * dt, x_d, u_d,u_max, system);
 
 %% plot SOS funnel
-TVLQRSOSAlternations(system, AB,S,R,Q, u, u_max,x_d,u_d,dt,N);
+TVLQRSOSAlternations(system, AB,S,R,Q,x_d,u_d,dt,N);

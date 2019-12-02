@@ -28,16 +28,16 @@ spot_options = spotprog.defaultOptions;
 spot_options.verbose = true;
 solver = @spot_mosek;
 sol = prog.minimize(-rho,solver,spot_options);
-rho = sol.eval(rho);
+rho = double(sol.eval(rho));
 
-% N = 300;
-% [X1,X2] = meshgrid(linspace(-2*pi,2*pi,N), linspace(-2*pi,2*pi,N));
-% 
-% 
-% hold on
-% VPLOT = reshape(dmsubs(V,x,[X1(:) X2(:)]'),size(X1));
-% [~,h] = contour(X1,X2,VPLOT,double(sol.eval(rho))*[1 1]);
-% 
-% set(h,'Color','Red','LineWidth',3)
+N = 300;
+[X1,X2] = meshgrid(linspace(-2*pi,2*pi,N), linspace(-2*pi,2*pi,N));
+
+
+hold on
+VPLOT = reshape(dmsubs(V,x,[X1(:) X2(:)]'),size(X1));
+[~,h] = contour(X1,X2,VPLOT,double(sol.eval(rho))*[1 1]);
+
+set(h,'Color','Red','LineWidth',3)
 end
 

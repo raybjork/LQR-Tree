@@ -10,9 +10,20 @@ classdef Trajectory
     end
     
     methods
-        function self = Trajectory(S, rho)
-            self.S = S;
-            self.rho = rho;
+        function self = Trajectory(varargin)
+            self.S = varargin{1};
+            if ~isa(self.S, 'function_handle')
+                self.S = @(t) self.S;
+            end
+            self.rho = varargin{2};
+            self.N = varargin{3};
+            self.dt = varargin{4};
+            self.x_d = varargin{5};
+            if ~isa(self.x_d, 'function_handle')
+                self.x_d = @(t) self.x_d;
+            end
+          
+            
         end
         
         

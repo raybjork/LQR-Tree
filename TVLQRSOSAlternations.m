@@ -1,30 +1,30 @@
-function [] = TVLQRSOSAlternations(system,AB, S, R, Q, u, u_max, x_d, u_d, dt, N)
-    rho_init = .05;
+function [rho] = TVLQRSOSAlternations(system,AB, S, R, Q, x_d, u_d, dt, N, rho_end)
+    rho_init = .001;
     state = x_d(0:dt/10:dt*N);
-    figure
+    
     hold on
     plot(state(1,:),state(2,:),'Color','k','LineWidth',3);
     
     hold on
     rho = ones(1,N)*rho_init;
     getV = @(x) getLyaps(x,system,AB, S, R,Q, dt,u_d,x_d,N);
-  
+    u_max = system.u_max;
     % calculate V and V_dot
-    for i = 1:10
-        
-        [success,sig,phi,alpha, beta,epsi,gamma,lambda] = altA(getV,rho,dt,N,u_max);
-        if ~success
-            break;
-        end
-        [success,rho] = altB(getV,sig,phi,alpha,beta,epsi,gamma,lambda,dt,N,u_max,state);
-        if ~success
-            break;
-        end
-    end   
-    
+%     for i = 1:10
+%         
+%         [success,sig,phi,alpha, beta,epsi,gamma,lambda] = altA(getV,rho,dt,N,u_max,rho_end);
+%         if ~success
+%             break;
+%         end
+%         [success,rho] = altB(getV,sig,phi,alpha,beta,epsi,gamma,lambda,dt,N,u_max,state,rho_end);
+%         if ~success
+%             break;
+%         end
+%     end   
+%     rho = double(rho);
 end
 
-function [success,sig,phi,alpha, beta,epsi,gamma,lambda] = altA(getV,rho,dt,N,u_max)
+function [success,sig,phi,alpha, beta,epsi,gamma,lambda] = altA(getV,rho,dt,N,u_max, rho_end)
     prog = spotsosprog();
     [prog,x] = prog.newIndeterminate('x',2);
     [prog, phi] = prog.newFreePoly(monomials(x,0:4),N);
@@ -35,7 +35,7 @@ function [success,sig,phi,alpha, beta,epsi,gamma,lambda] = altA(getV,rho,dt,N,u_
     [prog, lambda] = prog.newSOSPoly(monomials(x,0:4),N);
     [prog,epsi] = prog.newPos(1);
     [V,V_dot,K_hat] = getV(x);
-    sol = SOS_constraints(prog,x,V,V_dot,K_hat,rho,sig,phi,alpha,beta,epsi,gamma,lambda,dt,N,u_max);
+    sol = SOS_constraints(prog,x,V,V_dot,K_hat,rho,sig,phi,alpha,beta,epsi,gamma,lambda,dt,N,u_max,rho_end);
     phi = sol.eval(phi);
     sig = sol.eval(sig);
     beta = sol.eval(beta);
@@ -48,12 +48,12 @@ function [success,sig,phi,alpha, beta,epsi,gamma,lambda] = altA(getV,rho,dt,N,u_
     success = sol.status == spotsolstatus.STATUS_PRIMAL_AND_DUAL_FEASIBLE;
 end
 
-function [success,rho] = altB(getV,sig,phi,alpha,beta,epsi,gamma,lambda,dt,N,u_max,state)
+function [success,rho] = altB(getV,sig,phi,alpha,beta,epsi,gamma,lambda,dt,N,u_max,state,rho_end)
     prog = spotsosprog();
     [prog,x] = prog.newIndeterminate('x',2);
     [prog, rho] = prog.newPos(N);
     [V,V_dot,K_hat] = getV(x);
-    sol = SOS_constraints(prog,x,V,V_dot,K_hat,rho,sig,phi,alpha,beta,epsi,gamma,lambda,dt,N,u_max);
+    sol = SOS_constraints(prog,x,V,V_dot,K_hat,rho,sig,phi,alpha,beta,epsi,gamma,lambda,dt,N,u_max,rho_end);
     rho = sol.eval(rho);
     
     success = sol.status == spotsolstatus.STATUS_PRIMAL_AND_DUAL_FEASIBLE;
@@ -62,11 +62,11 @@ function [success,rho] = altB(getV,sig,phi,alpha,beta,epsi,gamma,lambda,dt,N,u_m
     end
 end
 
-function sol = SOS_constraints(prog,x,V,V_dot,K_hat,rho,sig,phi,alpha,beta,epsi,gamma,lambda,dt,N,u_max)
+function sol = SOS_constraints(prog,x,V,V_dot,K_hat,rho,sig,phi,alpha,beta,epsi,gamma,lambda,dt,N,u_max,rho_end)
     for i = 1:N
         
-        prog = prog.withSOS((V(i) - rho(i)) - (1+gamma(i))*(-K_hat(i)-u_max));
-        prog = prog.withSOS((V(i) - rho(i)) - (1+lambda(i))*(K_hat(i)-u_max));
+%         prog = prog.withSOS((V(i) - rho(i)) - (1+gamma(i))*(-K_hat(i)-u_max));
+%         prog = prog.withSOS((V(i) - rho(i)) - (1+lambda(i))*(K_hat(i)-u_max));
         if (i==1)
             %prog=prog.withSOS(rho(i)-V(i));
         end
@@ -86,9 +86,9 @@ function sol = SOS_constraints(prog,x,V,V_dot,K_hat,rho,sig,phi,alpha,beta,epsi,
             
         else
             if(isa(rho,'double'))
-                prog = prog.withSOS(alpha*(rho(i) - V(i)) - beta*(rho(i)-100) -epsi);
+                prog = prog.withSOS(alpha*(rho(i) - V(i)) - beta*(rho(i)-rho_end) -epsi);
             else
-                prog = prog.withSOS(alpha*(rho(i) - V(i)) - beta*(rho(i)-100)-epsi);
+                prog = prog.withSOS(alpha*(rho(i) - V(i)) - beta*(rho(i)-rho_end)-epsi);
             end
         end
     end 
@@ -144,5 +144,5 @@ function [] = PlotFunnel(rho, V,x, N,state)
         set(h,'Color','Red','LineWidth',3)
         
     end
-    hold off
+
 end
