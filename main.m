@@ -21,7 +21,7 @@ q_max = [2*pi; 2*pi]; % limits of LQR tree exploration
 root = Trajectory(system.S, infinite_SOS(system)); % infinite time to seed tree
 for i = 1:M
     qs(:, i) = [rand * q_max(1), rand * q_max(2)];
-    if qs(:, i)' * system.S * qs(:, i) >= rho
+    if qs(:, i)' * root.S * qs(:, i) >= root.rho
         % generate trajectory and controller
         [x_d, u_d, dt] = collocate_trajectory(qs(:, i), qstar, N, system);
         [K, S, u] = TVLQR(x_d, u_d, dt * N, system);
