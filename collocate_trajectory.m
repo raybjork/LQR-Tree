@@ -1,4 +1,4 @@
-function [x_d, u_d, dt] = collocate_trajectory(dynamics, x_0, x_f, u_max, N)
+function [x_d, u_d, dt] = collocate_trajectory(x_0, x_f, N, system)
 %% COLLOCATE_TRAJECTORY(dynamics, x_0, x_f, u_max, N)
 %   executes a direct collocation optimization program to find an input
 %   sequence to drive the cartpole system from x_0 to x_f.
@@ -13,6 +13,10 @@ function [x_d, u_d, dt] = collocate_trajectory(dynamics, x_0, x_f, u_max, N)
 %   @output ub: upper bound of constraint lb <= z <= ub; n_z by 1 vector
 %   @output z0: initial guess for z; n_z by 1 vector
     
+    % get information about the system
+    u_max = system.u_max;
+    f = system.dynamics();
+
     % constants defining time parameters of the program
     dt_guess = .1;
     dt_max = 1;
@@ -54,7 +58,7 @@ function [x_d, u_d, dt] = collocate_trajectory(dynamics, x_0, x_f, u_max, N)
 
     problem.x0 = z0;
     problem.options = options;
-    problem.nonlcon = @(z) all_constraints(dynamics, z, N, nx, nu);
+    problem.nonlcon = @(z) all_constraints(f, z, N, nx, nu);
     problem.solver = 'fmincon';
     problem.Aeq = Aeq;
     problem.beq = beq;

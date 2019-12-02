@@ -7,8 +7,8 @@ classdef Pendulum
         B
         Q
         R
-        K
         S
+        u_max
         constants
     end
 
@@ -18,23 +18,24 @@ classdef Pendulum
         %   matrices
         %   can call with three arguments (q, Q, R) or 1 (q)
         function self = Pendulum(varargin)
-            self.qstar = varargin{1};
-            self.constants = constants();
-            [A,B] = linearize(self.qstar);
-            self.A = A;
-            self.B = B;
-            if (nargin == 3)
-                self.Q = varargin{2};
-                self.R = varargin{3};  
-                [K,S] = lqr(A, B, self.Q, self.R);
-                self.K = K;
-                self.S = S;
+            if nargin > 0
+                self.qstar = varargin{1};
+                self.constants = constants();
+                [A,B] = linearize(self.qstar);
+                self.A = A;
+                self.B = B;
+                if nargin > 1
+                    self.Q = varargin{2};
+                    self.R = varargin{3};
+                    self.u_max = varargin{4};
+                    [~, self.S, ~] = lqr(self.A, self.B, self.Q, self.R);
+                end
             end
         end
     end
        
     methods (Static) % Static Methods can be called by [system].[method]
-        function system = new(q)
+        function system = new(q, u)
             system = Pendulum(q);
         end
         
@@ -130,14 +131,17 @@ end
 %% linearize
 %   linearize system around a given state
 function [A, B] = linearize(q)
-    syms u
-    syms x [2 1]
-    %A = jacobian(f(x,u),x); % run this only to get expression for A
-    A = [0,  1; -(981*cos(x1))/100, -1];
-    A = double(subs(A, x, q));
-    %B = diff(f(x,u),u); % run this only to get expression for B
+    %% run this section only to get expression for A
+    %syms u
+    %syms x [2 1]
+    %A = jacobian(f(x,u),x); 
+    %A = double(subs(A, x, q));
+    %B = diff(f(x,u),u);
+    %B = double(subs(B, x, q));
+    
+    %% explicitly derived derivatives
+    A = [0,  1; -(981*cos(q(1)))/100, -1];
     B = [0; 1];
-    B = double(subs(B, x, q));
 end
 
 %% f
