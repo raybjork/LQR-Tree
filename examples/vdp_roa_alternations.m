@@ -75,7 +75,7 @@ sol = prog.minimize(-gamma,solver,spot_options);
 %temporarily removed
  prog = prog.withPos(gamma - .98*sol.eval(gamma));
  
- sol = prog.minimize(0,solver,spot_options);
+ sol = prog.minimize(0*x(1),solver,spot_options);
 
 sigma_1 = sol.eval(sigma_1);
 sigma_2 = sol.eval(sigma_2);

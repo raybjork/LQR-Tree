@@ -16,7 +16,7 @@ function [S, AB, u] = TVLQR(Q, R, Qf, tf, x_d, u_d, u_max, system)
     L = spline(t, flipud(L)');
     
     S = @(t) s(ppval(L,t));
-    AB = @(t) ab(ststem, x_d(t));
+    AB = @(t) ab(system, x_d(t));
     u = @(t,x) feedback(system, t, x, ppval(L, t), R, x_d, u_d,u_max);
 end
 

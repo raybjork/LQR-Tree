@@ -47,7 +47,8 @@ classdef Pendulum
         %% poly_f
         %   function to evaluate polynomial approximation of system dynamics
         %   at a given state and input
-        function dx = poly_f(x, u)
+        
+        function dx = poly_f(x, u,x0)
             %x(1) = mod(x(1),2*pi); want to keep theta between 0 and 2pi
 
             % unpack constants
@@ -56,10 +57,9 @@ classdef Pendulum
             m = c.m;
             b = c.b;
             L = c.L;
-
-            dx = [x(2); (-b*x(2) - m*g*L*(x(1)+x(1)^3/6 + x(1)^5/120) + u)/(m*L^2)];
+            sinx1 = sin(x0(1))+(x(1)-x0(1))*cos(x0(1)) - (x(1)-x0(1)).^2*sin(x0(1))/2;
+            dx = [x(2); (-b*x(2) - m*g*L*sinx1 + u)/(m*L^2)];
         end
-        
         %% plot
         %   plot trajectory of the system
         function plot(t, x)
