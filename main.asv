@@ -1,22 +1,35 @@
 clc; close all;
 
 %% setup
-q0 = z;
-qstar = [pi;0];
-Q = diag([1 1]);
-Qf = diag([1 1]);
-R = 1;
-system = Cartpole(qstar,Q,R);
+qstar = [pi;0]; % fixed point for system
 
-N = 10;
+Q = diag([1 1]); % initial Q
+R = 1; % initial R
+
 u_max = 20;
 
-%% generate trajectory and controller
-[x_d, u_d, dt] = collocate_trajectory(system.dynamics(), q0, qstar, u_max, N);
-[K, S, u] = TVLQR(Q, R, Qf, N * dt, x_d, u_d, u_max, system);
+system = Pendulum(qstar, Q, R, u_max); % infinite time LQR controller
 
-%% simulate and plot
-q_err = [2; 0];
-f = system.dynamics();
-[t, x] = ode45(@(t,x) f(x, u(t,x)), [0 dt*N], x_d(0) + q_err);
-system.plot(t, x);
+N = 10; % number of collocation points
+
+M = 10; % number of nodes to sample in tree 
+qs = zeros(2, M); % list of nodes for tree
+q_max = [2*pi; 2*pi]; % limits of LQR tree exploration
+
+
+%% build tree
+rho = infinite_SOS(system); % get SOS ROA for infinite time case
+for i = 1:M
+    qs(:, i) = [rand * q_max(1), rand * q_max(2)];
+    if qs(:, i)' * system.S * qs(:, i) >= rho
+        % generate trajectory and controller
+        [x_d, u_d, dt] = collocate_trajectory(qs(:, i), qstar, N, system);
+        [K, S, u] = TVLQR(x_d, u_d, dt * N, system);
+        
+        % simulate and plot
+        q_err = [0; 0];
+        f = system.dynamics();
+        [t, x] = ode45(@(t,x) f(x, u(t,x)), [0 dt*N], x_d(0) + q_err);
+        system.plot(t, x);
+    end
+end
