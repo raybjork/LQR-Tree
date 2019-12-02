@@ -13,7 +13,7 @@ N = 10;     % number of collocation points
 
 %% generate trajectory and controller
 [x_d, u_d, dt] = collocate_trajectory(qstar, q0, N, system);
-[S, AB, u] = TVLQR(x_d, u_d, N * dt, system);
+[S, AB, u] = TVLQR(x_d, u_d, N * dt, system.S, system);
 
 %% simulate and plot
 q_err = [1; -3];
