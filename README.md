@@ -1,6 +1,8 @@
 # LQR-Tree
 
-This project is a MATLAB implementation of the LQR-Tree algorithm for control of robotic systems as originally outlined in [this paper](https://groups.csail.mit.edu/robotics-center/public_papers/Tedrake09a.pdf). This algorithm seeks a series of controllers with regions of attraction that cover the controllable state space of a system.  This repository implements this algorithms on two test systems, (the underactuated torque-limited pendulum, and the cartpole) but is built in such a way that other systems could be tested using the same framework.  
+This project is a MATLAB implementation of the LQR-Tree algorithm for control of robotic systems as originally outlined in [this paper](https://groups.csail.mit.edu/robotics-center/public_papers/Tedrake09a.pdf). This algorithm seeks a series of controllers with regions of attraction that cover the controllable state space of a system (illustrated below).  This repository implements this algorithms on two test systems, (the underactuated torque-limited pendulum, and the cartpole) but is built in such a way that other systems could be tested using the same framework.  
+
+![LQR-Tree](https://github.com/raybjork/LQR-Tree/blob/master/LQR-Tree.PNG)
 
 We invite you to read our paper [An Exploration of Global Planning in LQR-Trees](https://github.com/raybjork/LQR-Tree/blob/master/An%20Exploration%20of%20Global%20Planning%20in%20LQR-Trees.pdf) to learn about the theory underlying this project and its implications.  
 
@@ -18,13 +20,14 @@ Explain how to run the automated tests for this system
 
 ## Future Work
 
-* Improve documentation
-
+* Improve code documentation
+* Remove extranneous code
+* Streamline switching between models
 
 ## Authors
 
-* **Ray Bjorkman**
-* **David DePauw**
+* **Ray Bjorkman** - raybjork@seas.upenn.edu
+* **David DePauw** - daviddep@seas.upenn.edu
 
 ## Aknowledgments
 
