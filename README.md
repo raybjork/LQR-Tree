@@ -14,10 +14,6 @@ In order to run this program you will need to have the following installed on yo
 * [MOSEK](https://www.mosek.com/downloads/) - software used to solve optimization programs
 * [Spotless](https://github.com/spot-toolbox/spotless) - toolbox to formulate programs in MOSEK 
 
-## Running Tests
-
-Explain how to run the automated tests for this system
-
 ## Future Work
 
 * Improve code documentation
