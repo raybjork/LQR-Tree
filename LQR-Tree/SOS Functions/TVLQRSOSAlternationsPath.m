@@ -209,8 +209,8 @@ end
 
 function [h] = plot_end()
     
-     load infinite_SOS_data.mat
-    N = 300;
+    % load data from a saved *.mat file
+    %load examplefile.mat    N = 300;
     [X1,X2] = meshgrid(linspace(0,6,N), linspace(-6,6,N));
 
     VPLOT = reshape(dmsubs(-V,x,[X1(:) X2(:)]'),size(X1));

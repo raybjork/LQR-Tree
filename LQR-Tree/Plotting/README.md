@@ -1,0 +1,1 @@
+Note:  The scripts in this folder require saved .mat data from the rest of the LQR-Tree pipeline to work. They were intended only to help with visualization.  Until the documentation for this repository is improved, its probably best to ignore this folder.

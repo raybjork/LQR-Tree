@@ -2,7 +2,8 @@ clear
 clc
 close all
 
-load('infinite_SOS_data.mat')
+% load data from a saved *.mat file
+%load examplefile.mat
 
 sos_color = 1/255*[131 223 255];
 

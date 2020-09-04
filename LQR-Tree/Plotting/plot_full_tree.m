@@ -2,9 +2,10 @@ clear
 clc
 close all
 
- sos_color = 1/255*[131 223 255];
+sos_color = 1/255*[131 223 255];
 
-load trajectorySOSdata1.mat
+% load data from a saved *.mat file
+%load examplefile.mat
 
 for i = 1:N
     hold on
@@ -18,7 +19,8 @@ for i = 1:N
     set(sos,'Color',sos_color,'LineWidth',3)
 end
 
-load trajectorySOSdata2.mat
+% load data from a saved *.mat file
+%load examplefile.mat
 
 for i = 1:N
     
@@ -32,7 +34,8 @@ for i = 1:N
     set(sos,'Color',sos_color,'LineWidth',3)
 end
 
-load trajectorySOSdata3.mat
+% load data from a saved *.mat file
+%load examplefile.mat
 
 for i = 1:N
     
@@ -45,16 +48,18 @@ for i = 1:N
 
     set(sos,'Color',sos_color,'LineWidth',3)
 end
-%%
-load LQRTreeTraj2.mat
+% load data from a saved *.mat file
+%load examplefile.mat
 state = x_d(0:dt/5:dt*(N-1));
 b = plot(state(1,:),state(2,:),'Color','b','LineWidth',2);
 
-load LQRTreeTraj3.mat
+% load data from a saved *.mat file
+%load examplefile.mat
 state = x_d(0:dt/5:dt*(N-1));
 g = plot(state(1,:),state(2,:),'Color','g','LineWidth',2);
 
-load LQRTreeTraj4.mat
+% load data from a saved *.mat file
+%load examplefile.mat
 state = x_d(0:dt/5:dt*(N-1));
 k = plot(state(1,:),state(2,:),'Color','k','LineWidth',2);
 

@@ -2,7 +2,8 @@ clear
 clc
 close all
 
-load infinite_SOS_data.mat
+% load data from a saved *.mat file
+%load examplefile.mat
 N = 300;
 [X1,X2] = meshgrid(linspace(0,6,N), linspace(-6,6,N));
 
